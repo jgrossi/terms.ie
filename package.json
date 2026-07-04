@@ -20,13 +20,9 @@
     },
     "dependencies": {
         "@inertiajs/react": "^3.6.0",
-        "alpinejs": "^3.15.12",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
-        "daisyui": "^5.6.6",
-        "htmx.org": "^2.0.10",
         "lucide-react": "^1.23.0",
-        "next-themes": "^0.4.6",
         "radix-ui": "^1.6.1",
         "react": "^19.2.7",
         "react-dom": "^19.2.7",

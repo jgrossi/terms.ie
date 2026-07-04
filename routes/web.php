@@ -7,8 +7,9 @@ use App\Http\Controllers\SignatureController;
 use App\Http\Controllers\SignController;
 use App\Http\Controllers\TermController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
-Route::view('/', 'home')->name('home');
+Route::get('/', fn () => Inertia::render('Home'))->name('home');
 
 Route::post('/magic-link', [MagicLinkController::class, 'send'])->name('magic-link.send');
 Route::get('/magic-link/verify/{user}', [MagicLinkController::class, 'verify'])->middleware('signed')->name('magic-link.verify');
@@ -25,7 +26,6 @@ Route::prefix('app')->name('app.')->middleware('auth')->scopeBindings()->group(f
     Route::post('terms/{term}/signatures', [SignatureController::class, 'store'])->name('signatures.store');
     Route::get('clients/{client}/signatures/create', [SignatureController::class, 'createForClient'])->name('signatures.create-for-client');
     Route::post('clients/{client}/signatures', [SignatureController::class, 'storeForClient'])->name('signatures.store-for-client');
-    Route::get('terms/{term}/signature-fields', [SignatureController::class, 'variableFields'])->name('signatures.variable-fields');
     Route::get('signatures/{signature}', [SignatureController::class, 'show'])->name('signatures.show');
     Route::delete('signatures/{signature}', [SignatureController::class, 'destroy'])->name('signatures.destroy');
 });

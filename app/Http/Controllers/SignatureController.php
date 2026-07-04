@@ -8,18 +8,26 @@ use App\Models\Term;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class SignatureController extends Controller
 {
-    public function create(Term $term): View
+    public function create(Term $term): Response
     {
         abort_unless($term->user_id === auth()->id(), 403);
 
         $clients = auth()->user()->clients()->orderBy('name')->get();
-        $userVars = $term->extractUserVariables();
 
-        return view('app.signatures.create', compact('term', 'clients', 'userVars'));
+        return Inertia::render('signatures/Create', [
+            'term'     => $term->only('id', 'name'),
+            'clients'  => $clients->map(fn (Client $client) => [
+                'id'    => $client->id,
+                'name'  => $client->name,
+                'email' => $client->email,
+            ]),
+            'userVars' => $term->extractUserVariables(),
+        ]);
     }
 
     public function store(Request $request, Term $term): RedirectResponse
@@ -47,13 +55,20 @@ class SignatureController extends Controller
         return redirect()->route('app.signatures.show', $signature)->with('toast', 'Term assigned to client.');
     }
 
-    public function createForClient(Client $client): View
+    public function createForClient(Client $client): Response
     {
         abort_unless($client->user_id === auth()->id(), 403);
 
         $terms = auth()->user()->terms()->latest()->get();
 
-        return view('app.signatures.create-for-client', compact('client', 'terms'));
+        return Inertia::render('signatures/CreateForClient', [
+            'client' => $client->only('id', 'name'),
+            'terms'  => $terms->map(fn (Term $term) => [
+                'id'        => $term->id,
+                'name'      => $term->name,
+                'variables' => $term->extractUserVariables(),
+            ]),
+        ]);
     }
 
     public function storeForClient(Request $request, Client $client): RedirectResponse
@@ -87,20 +102,31 @@ class SignatureController extends Controller
         return redirect()->route('app.signatures.show', $signature)->with('toast', 'Term assigned to client.');
     }
 
-    public function variableFields(Term $term): View
-    {
-        abort_unless($term->user_id === auth()->id(), 403);
-
-        $userVars = $term->extractUserVariables();
-
-        return view('app.signatures._variable-fields', compact('userVars'));
-    }
-
-    public function show(Signature $signature): View
+    public function show(Signature $signature): Response
     {
         abort_unless($signature->client->user_id === auth()->id(), 403);
 
-        return view('app.signatures.show', compact('signature'));
+        return Inertia::render('signatures/Show', [
+            'signature' => [
+                'id'           => $signature->id,
+                'term_name'    => $signature->termVersion->term->name,
+                'version'      => $signature->termVersion->version,
+                'status'       => $signature->status->value,
+                'is_pending'   => $signature->isPending(),
+                'is_signed'    => $signature->isSigned(),
+                'client'       => [
+                    'id'    => $signature->client->id,
+                    'name'  => $signature->client->name,
+                    'email' => $signature->client->email,
+                ],
+                'variables'    => $signature->variables ?? [],
+                'body'         => $signature->render(),
+                'signed_name'  => $signature->signed_name,
+                'signed_at'    => $signature->signed_at?->toIso8601String(),
+                'signed_ip'    => $signature->signed_ip,
+                'content_hash' => $signature->content_hash,
+            ],
+        ]);
     }
 
     public function destroy(Signature $signature): RedirectResponse

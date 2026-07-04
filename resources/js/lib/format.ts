@@ -30,3 +30,19 @@ export function formatDate(iso: string): string {
         year: 'numeric',
     });
 }
+
+/** "03 Jul 2026 at 14:32" */
+export function formatDateTime(iso: string): string {
+    const date = new Date(iso);
+    const day = date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    });
+    const time = date.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    });
+    return `${day} at ${time}`;
+}

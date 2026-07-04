@@ -14,20 +14,4 @@ enum SignatureStatus: string
             self::Signed  => 'Signed',
         };
     }
-
-    public function badge(): string
-    {
-        return match ($this) {
-            self::Pending => 'badge-warning',
-            self::Signed  => 'badge-success',
-        };
-    }
-
-    public function dotClass(): string
-    {
-        return match ($this) {
-            self::Pending => 'bg-base-content/40',
-            self::Signed  => 'bg-success',
-        };
-    }
 }

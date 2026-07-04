@@ -6,6 +6,7 @@ use App\Models\Signature;
 use App\Models\Term;
 use App\Models\TermVersion;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia as Assert;
 
 // ── Assign (create / store) ───────────────────────────────────────────────
 
@@ -16,8 +17,10 @@ test('owner can view the assign form', function () {
 
     $this->actingAs($user)
         ->get(route('app.signatures.create', $term))
-        ->assertOk()
-        ->assertSee($term->name);
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('signatures/Create')
+            ->where('term.id', $term->id)
+        );
 });
 
 test('another user cannot access the assign form', function () {
@@ -75,8 +78,10 @@ test('owner can view the assign form from a client', function () {
 
     $this->actingAs($user)
         ->get(route('app.signatures.create-for-client', $client))
-        ->assertOk()
-        ->assertSee($client->name);
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('signatures/CreateForClient')
+            ->where('client.id', $client->id)
+        );
 });
 
 test('another user cannot access the client assign form', function () {
@@ -112,16 +117,6 @@ test('cannot assign another user\'s term from a client', function () {
     $this->actingAs($user)
         ->post(route('app.signatures.store-for-client', $client), ['term_id' => $otherTerm->id])
         ->assertSessionHasErrors('term_id');
-});
-
-test('variable fields partial returns correct inputs for a term', function () {
-    $user = User::factory()->create();
-    $term = Term::factory()->for($user)->create(['body' => 'Price: {{PRICE}}.']);
-
-    $this->actingAs($user)
-        ->get(route('app.signatures.variable-fields', $term))
-        ->assertOk()
-        ->assertSee('PRICE');
 });
 
 // ── Admin show ────────────────────────────────────────────────────────────
@@ -193,7 +188,10 @@ test('client can view the public signing page', function () {
 
     $this->get(route('sign.show', $sig))
         ->assertOk()
-        ->assertSee('I accept these terms');
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('sign/Show')
+            ->where('signature.is_signed', false)
+        );
 });
 
 test('client can sign a document', function () {

@@ -2,6 +2,7 @@
 
 use App\Models\Client;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia as Assert;
 
 // ── Index ─────────────────────────────────────────────────────────────────
 
@@ -11,8 +12,11 @@ test('authenticated user sees their clients', function () {
 
     $this->actingAs($user)
         ->get(route('app.clients.index'))
-        ->assertOk()
-        ->assertSee($client->name);
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('clients/Index')
+            ->has('clients', 1)
+            ->where('clients.0.id', $client->id)
+        );
 });
 
 test('guest is redirected from clients index', function () {
@@ -20,13 +24,15 @@ test('guest is redirected from clients index', function () {
 });
 
 test('clients index does not show another user\'s clients', function () {
-    $user  = User::factory()->create();
-    $other = Client::factory()->create();
+    $user = User::factory()->create();
+    Client::factory()->create();
 
     $this->actingAs($user)
         ->get(route('app.clients.index'))
-        ->assertOk()
-        ->assertDontSee($other->name);
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('clients/Index')
+            ->has('clients', 0)
+        );
 });
 
 // ── Create / Store ────────────────────────────────────────────────────────
@@ -64,8 +70,10 @@ test('owner can view their client', function () {
 
     $this->actingAs($user)
         ->get(route('app.clients.show', $client))
-        ->assertOk()
-        ->assertSee($client->name);
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('clients/Show')
+            ->where('client.id', $client->id)
+        );
 });
 
 test('another user cannot view a client', function () {

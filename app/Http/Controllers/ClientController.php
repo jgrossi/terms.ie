@@ -5,20 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ClientController extends Controller
 {
-    public function index(): View
+    public function index(): Response
     {
         $clients = auth()->user()->clients()->latest()->get();
 
-        return view('app.clients.index', compact('clients'));
+        return Inertia::render('clients/Index', [
+            'clients' => $clients->map(fn (Client $client) => [
+                'id'         => $client->id,
+                'name'       => $client->name,
+                'email'      => $client->email,
+                'created_at' => $client->created_at->toIso8601String(),
+            ]),
+        ]);
     }
 
-    public function create(): View
+    public function create(): Response
     {
-        return view('app.clients.create');
+        return Inertia::render('clients/Create');
     }
 
     public function store(Request $request): RedirectResponse
@@ -33,18 +41,36 @@ class ClientController extends Controller
         return redirect()->route('app.clients.show', $client)->with('toast', 'Client created.');
     }
 
-    public function show(Client $client): View
+    public function show(Client $client): Response
     {
         abort_unless($client->user_id === auth()->id(), 403);
 
-        return view('app.clients.show', compact('client'));
+        $signatures = $client->signatures()->with('termVersion.term')->latest()->get();
+
+        return Inertia::render('clients/Show', [
+            'client' => [
+                'id'             => $client->id,
+                'name'           => $client->name,
+                'email'          => $client->email,
+                'has_signatures' => $signatures->isNotEmpty(),
+            ],
+            'signatures' => $signatures->map(fn ($sig) => [
+                'id'         => $sig->id,
+                'term_name'  => $sig->termVersion->term->name,
+                'version'    => $sig->termVersion->version,
+                'status'     => $sig->status->value,
+                'created_at' => $sig->created_at->toIso8601String(),
+            ]),
+        ]);
     }
 
-    public function edit(Client $client): View
+    public function edit(Client $client): Response
     {
         abort_unless($client->user_id === auth()->id(), 403);
 
-        return view('app.clients.edit', compact('client'));
+        return Inertia::render('clients/Edit', [
+            'client' => $client->only('id', 'name', 'email'),
+        ]);
     }
 
     public function update(Request $request, Client $client): RedirectResponse

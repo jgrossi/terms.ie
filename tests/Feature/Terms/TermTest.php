@@ -5,6 +5,7 @@ use App\Models\Signature;
 use App\Models\Term;
 use App\Models\TermVersion;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia as Assert;
 
 // ── Index ─────────────────────────────────────────────────────────────────
 
@@ -14,8 +15,11 @@ test('authenticated user sees their terms index', function () {
 
     $this->actingAs($user)
         ->get(route('app.terms.index'))
-        ->assertOk()
-        ->assertSee($term->name);
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('terms/Index')
+            ->has('terms', 1)
+            ->where('terms.0.id', $term->id)
+        );
 });
 
 test('guest is redirected from terms index', function () {
@@ -23,13 +27,15 @@ test('guest is redirected from terms index', function () {
 });
 
 test('terms index does not show another user\'s terms', function () {
-    $user  = User::factory()->create();
-    $other = Term::factory()->create();
+    $user = User::factory()->create();
+    Term::factory()->create();
 
     $this->actingAs($user)
         ->get(route('app.terms.index'))
-        ->assertOk()
-        ->assertDontSee($other->name);
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('terms/Index')
+            ->has('terms', 0)
+        );
 });
 
 // ── Create / Store ────────────────────────────────────────────────────────
@@ -71,8 +77,10 @@ test('owner can view their term', function () {
 
     $this->actingAs($user)
         ->get(route('app.terms.show', $term))
-        ->assertOk()
-        ->assertSee($term->name);
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('terms/Show')
+            ->where('term.id', $term->id)
+        );
 });
 
 test('another user cannot view a term', function () {

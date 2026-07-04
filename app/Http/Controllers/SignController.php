@@ -6,13 +6,25 @@ use App\Enums\SignatureStatus;
 use App\Models\Signature;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class SignController extends Controller
 {
-    public function show(Signature $signature): View
+    public function show(Signature $signature): Response
     {
-        return view('sign.show', compact('signature'));
+        return Inertia::render('sign/Show', [
+            'signature' => [
+                'id'           => $signature->id,
+                'term_name'    => $signature->termVersion->term->name,
+                'is_signed'    => $signature->isSigned(),
+                'body'         => $signature->render(),
+                'signed_name'  => $signature->signed_name,
+                'signed_at'    => $signature->signed_at?->toIso8601String(),
+                'signed_ip'    => $signature->signed_ip,
+                'content_hash' => $signature->content_hash,
+            ],
+        ]);
     }
 
     public function sign(Request $request, Signature $signature): RedirectResponse

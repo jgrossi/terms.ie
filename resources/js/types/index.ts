@@ -62,3 +62,59 @@ export interface SignedSignature {
     signed_name: string;
     signed_at: string;
 }
+
+export type SignatureStatus = 'pending' | 'signed';
+
+export interface ClientListItem {
+    id: string;
+    name: string;
+    email: string;
+    created_at: string;
+}
+
+export interface ClientSignatureRow {
+    id: string;
+    term_name: string;
+    version: number;
+    status: SignatureStatus;
+    created_at: string;
+}
+
+export interface TermOption {
+    id: string;
+    name: string;
+    variables: string[];
+}
+
+export interface ClientOption {
+    id: string;
+    name: string;
+    email: string;
+}
+
+export interface SignatureDetail {
+    id: string;
+    term_name: string;
+    version: number;
+    status: SignatureStatus;
+    is_pending: boolean;
+    is_signed: boolean;
+    client: { id: string; name: string; email: string };
+    variables: Record<string, string>;
+    body: string;
+    signed_name: string | null;
+    signed_at: string | null;
+    signed_ip: string | null;
+    content_hash: string | null;
+}
+
+export interface SignDocument {
+    id: string;
+    term_name: string;
+    is_signed: boolean;
+    body: string;
+    signed_name: string | null;
+    signed_at: string | null;
+    signed_ip: string | null;
+    content_hash: string | null;
+}

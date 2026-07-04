@@ -3,10 +3,9 @@
 use App\Models\User;
 use Illuminate\Support\Facades\URL;
 
-test('sending a magic link to a new email creates the user and returns confirmation', function () {
+test('sending a magic link to a new email creates the user and redirects home', function () {
     $this->post(route('magic-link.send'), ['email' => 'new@example.ie'])
-        ->assertOk()
-        ->assertSee('Check your inbox');
+        ->assertRedirect(route('home'));
 
     expect(User::where('email', 'new@example.ie')->exists())->toBeTrue();
 });
@@ -15,7 +14,7 @@ test('sending a magic link to an existing email does not duplicate the user', fu
     User::factory()->create(['email' => 'existing@example.ie']);
 
     $this->post(route('magic-link.send'), ['email' => 'existing@example.ie'])
-        ->assertOk();
+        ->assertRedirect(route('home'));
 
     expect(User::where('email', 'existing@example.ie')->count())->toBe(1);
 });

@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 
 class MagicLinkController extends Controller
 {
-    public function send(Request $request)
+    public function send(Request $request): RedirectResponse
     {
         $email = $request->validate(['email' => ['required', 'email', 'max:255']])['email'];
 
@@ -25,10 +26,10 @@ class MagicLinkController extends Controller
         // TODO: Mail::to($email)->send(new MagicLinkMail($url));
         \Log::info("Magic link for {$email}: {$url}");
 
-        return view('auth._magic-link-sent', ['email' => $email]);
+        return redirect()->route('home');
     }
 
-    public function verify(User $user)
+    public function verify(User $user): RedirectResponse
     {
         Auth::login($user, remember: true);
         $user->update(['email_verified_at' => $user->email_verified_at ?? now()]);
@@ -36,7 +37,7 @@ class MagicLinkController extends Controller
         return redirect()->route('app.dashboard');
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
         $request->session()->invalidate();
