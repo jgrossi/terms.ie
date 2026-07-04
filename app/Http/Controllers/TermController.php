@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Term;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class TermController extends Controller
 {
@@ -11,12 +12,22 @@ class TermController extends Controller
     {
         $terms = auth()->user()->terms()->withCount('versions')->latest()->get();
 
-        return view('app.terms.index', compact('terms'));
+        return Inertia::render('terms/Index', [
+            'terms' => $terms->map(fn (Term $term) => [
+                'id'             => $term->id,
+                'name'           => $term->name,
+                'variables'      => $term->extractUserVariables(),
+                'versions_count' => $term->versions_count,
+                'updated_at'     => $term->updated_at->toIso8601String(),
+            ]),
+        ]);
     }
 
     public function create()
     {
-        return view('app.terms.create');
+        return Inertia::render('terms/Create', [
+            'reserved' => Term::RESERVED,
+        ]);
     }
 
     public function store(Request $request)
@@ -38,14 +49,34 @@ class TermController extends Controller
 
         $versions = $term->versions()->latest('version')->get();
 
-        return view('app.terms.show', compact('term', 'versions'));
+        return Inertia::render('terms/Show', [
+            'term' => [
+                'id'                 => $term->id,
+                'name'               => $term->name,
+                'body'               => $term->body,
+                'updated_at'         => $term->updated_at->toIso8601String(),
+                'version'            => $versions->first()?->version ?? 1,
+                'has_signatures'     => $term->hasSignatures(),
+                'user_variables'     => $term->extractUserVariables(),
+                'reserved_variables' => array_values(
+                    array_intersect($term->extractVariables(), Term::RESERVED)
+                ),
+            ],
+            'versions' => $versions->map(fn ($version) => [
+                'version'    => $version->version,
+                'created_at' => $version->created_at->toIso8601String(),
+            ]),
+        ]);
     }
 
     public function edit(Term $term)
     {
         abort_unless($term->user_id === auth()->id(), 403);
 
-        return view('app.terms.edit', compact('term'));
+        return Inertia::render('terms/Edit', [
+            'term'     => $term->only('id', 'name', 'body'),
+            'reserved' => Term::RESERVED,
+        ]);
     }
 
     public function update(Request $request, Term $term)

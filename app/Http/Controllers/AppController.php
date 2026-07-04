@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\SignatureStatus;
 use App\Models\Signature;
+use Inertia\Inertia;
 
 class AppController extends Controller
 {
@@ -13,23 +14,37 @@ class AppController extends Controller
 
         $signaturesBase = Signature::whereHas('client', fn ($q) => $q->where('user_id', $user->id));
 
-        return view('app.dashboard', [
-            'termCount'          => $user->terms()->count(),
-            'clientCount'        => $user->clients()->count(),
-            'pendingCount'       => (clone $signaturesBase)->where('status', SignatureStatus::Pending)->count(),
-            'signedCount'        => (clone $signaturesBase)->where('status', SignatureStatus::Signed)->count(),
-            'pendingSignatures'  => (clone $signaturesBase)
+        return Inertia::render('Dashboard', [
+            'termCount'    => $user->terms()->count(),
+            'clientCount'  => $user->clients()->count(),
+            'pendingCount' => (clone $signaturesBase)->where('status', SignatureStatus::Pending)->count(),
+            'signedCount'  => (clone $signaturesBase)->where('status', SignatureStatus::Signed)->count(),
+            'pendingSignatures' => (clone $signaturesBase)
                 ->where('status', SignatureStatus::Pending)
                 ->with(['client', 'termVersion.term'])
                 ->latest()
                 ->limit(10)
-                ->get(),
-            'recentSigned'       => (clone $signaturesBase)
+                ->get()
+                ->map(fn (Signature $sig) => [
+                    'id'           => $sig->id,
+                    'client_name'  => $sig->client->name,
+                    'client_email' => $sig->client->email,
+                    'term_name'    => $sig->termVersion->term->name,
+                    'created_at'   => $sig->created_at->toIso8601String(),
+                ]),
+            'recentSigned' => (clone $signaturesBase)
                 ->where('status', SignatureStatus::Signed)
                 ->with(['client', 'termVersion.term'])
                 ->latest('signed_at')
                 ->limit(5)
-                ->get(),
+                ->get()
+                ->map(fn (Signature $sig) => [
+                    'id'          => $sig->id,
+                    'client_name' => $sig->client->name,
+                    'term_name'   => $sig->termVersion->term->name,
+                    'signed_name' => $sig->signed_name,
+                    'signed_at'   => $sig->signed_at->toIso8601String(),
+                ]),
         ]);
     }
 }

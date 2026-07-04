@@ -1,38 +1,130 @@
 @import 'tailwindcss';
-@plugin "daisyui";
+@import 'tw-animate-css';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
+@source '../js';
 
-@theme {
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design tokens — ported from the DaisyUI era into shadcn's CSS-variable convention.
+ * Palette is unchanged: blue #2563EB accent, zinc neutrals, near-black text/inverted
+ * surfaces, warm "paper" document surface, Inter (UI) + monospace (contract body).
+ */
+:root {
+    --radius: 0.65rem;
+
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.21 0.006 285.885);
+
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.21 0.006 285.885);
+
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.21 0.006 285.885);
+
+    /* brand blue #2563EB */
+    --primary: oklch(0.546 0.245 262.89);
+    --primary-foreground: oklch(0.985 0 0);
+
+    --secondary: oklch(0.967 0.001 286.375);
+    --secondary-foreground: oklch(0.21 0.006 285.885);
+
+    --muted: oklch(0.967 0.001 286.375);
+    --muted-foreground: oklch(0.552 0.016 285.938);
+
+    --accent: oklch(0.967 0.001 286.375);
+    --accent-foreground: oklch(0.21 0.006 285.885);
+
+    --destructive: oklch(0.628 0.249 12.9);
+    --destructive-foreground: oklch(0.985 0 0);
+
+    --border: oklch(0.92 0.004 286.32);
+    --input: oklch(0.92 0.004 286.32);
+    --ring: oklch(0.546 0.245 262.89);
+
+    /* domain-specific extras (kept from the prior design) */
+    --paper: oklch(0.988 0.006 92);
+    --success: oklch(0.704 0.14 162.5);
+    --success-foreground: oklch(0.985 0 0);
+    --warning: oklch(0.74 0.09 75);
+    --warning-foreground: oklch(0.21 0.006 285.885);
+}
+
+.dark {
+    --background: oklch(0.141 0.005 285.823);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.21 0.006 285.885);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.21 0.006 285.885);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.623 0.214 259.815);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.274 0.006 286.033);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.274 0.006 286.033);
+    --muted-foreground: oklch(0.705 0.015 286.067);
+    --accent: oklch(0.274 0.006 286.033);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --destructive-foreground: oklch(0.985 0 0);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.623 0.214 259.815);
+    --paper: oklch(0.21 0.01 92);
+    --success: oklch(0.704 0.14 162.5);
+    --success-foreground: oklch(0.985 0 0);
+    --warning: oklch(0.74 0.09 75);
+    --warning-foreground: oklch(0.21 0.006 285.885);
+}
+
+@theme inline {
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-mono: ui-monospace, 'SF Mono', 'SFMono-Regular', Menlo, Consolas,
+        'Liberation Mono', monospace;
 
-    /* warm off-white "paper" for rendered documents — generates `bg-paper`, `text-paper` */
-    --color-paper: oklch(98.8% 0.006 92);
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-paper: var(--paper);
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
 }
 
-:root,
-[data-theme="light"] {
-    --color-primary: oklch(54.6% 0.245 262.89);   /* #2563EB blue-600 */
-    --color-primary-content: oklch(98.5% 0 0);
-    --color-secondary: oklch(45% 0.008 258);
-    --color-secondary-content: oklch(98.5% 0 0);
-    --color-base-100: oklch(100% 0 0);
-    --color-base-200: oklch(98.5% 0 0);
-    --color-base-300: oklch(91.4% 0.004 286.6);
-    --color-base-content: oklch(21% 0.006 285.885);
-    --color-success: oklch(70.4% 0.14 162.5);
-    --color-success-content: oklch(98.5% 0 0);
-    --color-error: oklch(62.8% 0.249 12.9);
-    --color-error-content: oklch(98.5% 0 0);
-
-    /* muted amber so any stray daisyUI `warning` isn't acid yellow (owner disliked it) */
-    --color-warning: oklch(74% 0.09 75);
-    --color-warning-content: oklch(21% 0.006 285.885);
-
-    --radius-field: 0.5rem;   /* was 0.375rem — slightly softer inputs/buttons */
-    --radius-box: 0.75rem;
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+    /* Tailwind v4 no longer defaults buttons to cursor:pointer — restore it. */
+    button:not(:disabled),
+    [role='button']:not(:disabled) {
+        cursor: pointer;
+    }
 }
-
-[x-cloak] { display: none !important; }
