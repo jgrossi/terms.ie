@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Trash2 } from 'lucide-react';
+import { Download, Mail, Trash2 } from 'lucide-react';
 import { route } from 'ziggy-js';
 import type { ReactNode } from 'react';
 import { AppLayout } from '@/layouts/app-layout';
@@ -12,11 +12,15 @@ import { CopyButton } from '@/components/copy-button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { formatDate } from '@/lib/format';
 import type { SignatureDetail } from '@/types';
 
 export default function Show({ signature }: { signature: SignatureDetail }) {
     const signUrl = route('sign.show', signature.id);
     const variableEntries = Object.entries(signature.variables ?? {});
+
+    const sendByEmail = () =>
+        router.post(route('app.signatures.send', signature.id), {}, { preserveScroll: true });
 
     return (
         <>
@@ -35,6 +39,13 @@ export default function Show({ signature }: { signature: SignatureDetail }) {
                 actions={
                     <>
                         <StatusDot status={signature.status} />
+                        {signature.is_signed && (
+                            <Button asChild variant="outline" size="sm">
+                                <a href={route('sign.pdf', signature.id)}>
+                                    <Download className="size-3.5" /> Download PDF
+                                </a>
+                            </Button>
+                        )}
                         {signature.is_pending && (
                             <ConfirmDialog
                                 title="Revoke this signing request?"
@@ -63,7 +74,8 @@ export default function Show({ signature }: { signature: SignatureDetail }) {
                     {signature.is_pending && (
                         <SectionCard label="Signing link">
                             <p className="mb-3 text-xs text-muted-foreground">
-                                Send this link to {signature.client.name} to sign the document.
+                                Share this link with {signature.client.name} to sign — copy it,
+                                or email it directly.
                             </p>
                             <div className="flex gap-2">
                                 <Input
@@ -74,6 +86,39 @@ export default function Show({ signature }: { signature: SignatureDetail }) {
                                 />
                                 <CopyButton text={signUrl} label="Copy" />
                             </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="mt-2 w-full"
+                                onClick={sendByEmail}
+                            >
+                                <Mail className="size-3.5" /> Send via email
+                            </Button>
+                            {signature.expires_at &&
+                                (signature.is_expired ? (
+                                    <div className="mt-3 flex items-center justify-between gap-2">
+                                        <p className="text-xs text-warning">
+                                            This link has expired.
+                                        </p>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() =>
+                                                router.post(
+                                                    route('app.signatures.extend', signature.id),
+                                                    {},
+                                                    { preserveScroll: true },
+                                                )
+                                            }
+                                        >
+                                            Extend
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <p className="mt-3 text-xs text-muted-foreground/60">
+                                        Link expires {formatDate(signature.expires_at)}.
+                                    </p>
+                                ))}
                         </SectionCard>
                     )}
 

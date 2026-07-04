@@ -19,7 +19,7 @@ export default function Create({ reserved }: { reserved: string[] }) {
                 ]}
             />
 
-            <div className="max-w-2xl">
+            <div className="max-w-4xl">
                 <SectionCard>
                     <TermForm reserved={reserved} />
                 </SectionCard>

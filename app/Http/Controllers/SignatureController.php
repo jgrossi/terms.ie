@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SignatureLinkMail;
 use App\Models\Client;
 use App\Models\Signature;
 use App\Models\Term;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -114,6 +116,8 @@ class SignatureController extends Controller
                 'status'       => $signature->status->value,
                 'is_pending'   => $signature->isPending(),
                 'is_signed'    => $signature->isSigned(),
+                'is_expired'   => $signature->isExpired(),
+                'expires_at'   => $signature->expires_at?->toIso8601String(),
                 'client'       => [
                     'id'    => $signature->client->id,
                     'name'  => $signature->client->name,
@@ -127,6 +131,26 @@ class SignatureController extends Controller
                 'content_hash' => $signature->content_hash,
             ],
         ]);
+    }
+
+    public function send(Signature $signature): RedirectResponse
+    {
+        abort_unless($signature->client->user_id === auth()->id(), 403);
+        abort_unless($signature->isPending(), 403, 'This document has already been signed.');
+
+        Mail::to($signature->client->email)->queue(new SignatureLinkMail($signature));
+
+        return back()->with('toast', "Signing link sent to {$signature->client->email}.");
+    }
+
+    public function extend(Signature $signature): RedirectResponse
+    {
+        abort_unless($signature->client->user_id === auth()->id(), 403);
+        abort_unless($signature->isPending(), 403, 'This document has already been signed.');
+
+        $signature->update(['expires_at' => now()->addDays(Signature::EXPIRY_DAYS)]);
+
+        return back()->with('toast', 'Signing link extended by '.Signature::EXPIRY_DAYS.' days.');
     }
 
     public function destroy(Signature $signature): RedirectResponse

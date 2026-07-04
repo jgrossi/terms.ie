@@ -6,7 +6,7 @@ import { AppLayout } from '@/layouts/app-layout';
 import { PageHeader } from '@/components/page-header';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { TablePanel } from '@/components/table-panel';
 import {
     Table,
     TableBody,
@@ -46,7 +46,7 @@ export default function Index({ clients }: { clients: ClientListItem[] }) {
                     }
                 />
             ) : (
-                <Card className="overflow-hidden py-0">
+                <TablePanel>
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -84,7 +84,7 @@ export default function Index({ clients }: { clients: ClientListItem[] }) {
                             ))}
                         </TableBody>
                     </Table>
-                </Card>
+                </TablePanel>
             )}
         </>
     );

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\MagicLinkMail;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
 class MagicLinkController extends Controller
@@ -23,8 +25,7 @@ class MagicLinkController extends Controller
             ['user' => $user->id]
         );
 
-        // TODO: Mail::to($email)->send(new MagicLinkMail($url));
-        \Log::info("Magic link for {$email}: {$url}");
+        Mail::to($email)->send(new MagicLinkMail($url));
 
         return redirect()->route('home');
     }

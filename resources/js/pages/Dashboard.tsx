@@ -16,7 +16,13 @@ import { AvatarInitials } from '@/components/avatar-initials';
 import { CopyButton } from '@/components/copy-button';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { TablePanel } from '@/components/table-panel';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableRow,
+} from '@/components/ui/table';
 import { relativeTime } from '@/lib/format';
 import { usePage } from '@inertiajs/react';
 import type {
@@ -60,19 +66,19 @@ export default function Dashboard({
                 }
             />
 
-            <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <div className="mb-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <Stat
                     label="Terms"
                     value={termCount}
                     caption="total created"
-                    icon={<FileText className="size-3.5" />}
+                    icon={<FileText className="size-4" />}
                     href={route('app.terms.index')}
                 />
                 <Stat
                     label="Clients"
                     value={clientCount}
                     caption="total added"
-                    icon={<Users className="size-3.5" />}
+                    icon={<Users className="size-4" />}
                     href={route('app.clients.index')}
                 />
                 <Stat
@@ -83,27 +89,28 @@ export default function Dashboard({
                             ? `${pendingCount} ${pendingCount === 1 ? 'signature' : 'signatures'} pending`
                             : 'all signed'
                     }
-                    icon={<Clock className="size-3.5" />}
-                    invert={pendingCount > 0}
+                    icon={<Clock className="size-4" />}
+                    attention={pendingCount > 0}
                 />
                 <Stat
                     label="Signed"
                     value={signedCount}
                     caption="total collected"
-                    icon={<CheckCircle2 className="size-3.5" />}
+                    icon={<CheckCircle2 className="size-4" />}
                 />
             </div>
 
-            <Card className="mb-6 overflow-hidden py-0">
-                <div className="flex items-center justify-between border-b px-6 py-4">
-                    <h2 className="text-sm font-semibold">Awaiting signature</h2>
-                    {pendingCount > 0 && (
-                        <Badge className="bg-foreground text-background">
+            <TablePanel
+                className="mb-6"
+                title="Awaiting signature"
+                action={
+                    pendingCount > 0 ? (
+                        <Badge className="border-transparent bg-warning/15 text-warning">
                             {pendingCount} pending
                         </Badge>
-                    )}
-                </div>
-
+                    ) : undefined
+                }
+            >
                 {pendingSignatures.length === 0 ? (
                     <div className="flex flex-col items-center justify-center gap-2 py-12">
                         <CheckCircle2 className="size-8 text-muted-foreground/20" />
@@ -112,79 +119,89 @@ export default function Dashboard({
                         </p>
                     </div>
                 ) : (
-                    <div className="divide-y">
-                        {pendingSignatures.map((sig) => (
-                            <div
-                                key={sig.id}
-                                className="flex items-center justify-between gap-4 px-6 py-3"
-                            >
-                                <div className="flex min-w-0 items-center gap-3">
-                                    <AvatarInitials name={sig.client_name} />
-                                    <div className="min-w-0">
-                                        <p className="text-sm font-medium leading-tight">
-                                            {sig.client_name}
-                                        </p>
-                                        <p className="truncate text-xs leading-tight text-muted-foreground">
-                                            {sig.client_email}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="hidden flex-1 text-sm text-muted-foreground sm:block">
-                                    {sig.term_name}
-                                </div>
-                                <div className="hidden text-xs text-muted-foreground/60 sm:block">
-                                    {relativeTime(sig.created_at)}
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <CopyButton text={route('sign.show', sig.id)} />
-                                    <Button asChild variant="ghost" size="sm">
-                                        <Link href={route('app.signatures.show', sig.id)}>
-                                            View
-                                        </Link>
-                                    </Button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <Table>
+                        <TableBody>
+                            {pendingSignatures.map((sig) => (
+                                <TableRow key={sig.id}>
+                                    <TableCell>
+                                        <div className="flex min-w-0 items-center gap-3">
+                                            <AvatarInitials name={sig.client_name} />
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-medium leading-tight">
+                                                    {sig.client_name}
+                                                </p>
+                                                <p className="truncate text-xs leading-tight text-muted-foreground">
+                                                    {sig.client_email}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
+                                        {sig.term_name}
+                                    </TableCell>
+                                    <TableCell className="hidden text-xs text-muted-foreground/60 sm:table-cell">
+                                        {relativeTime(sig.created_at)}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <div className="flex items-center justify-end gap-1">
+                                            <CopyButton text={route('sign.show', sig.id)} />
+                                            <Button asChild variant="ghost" size="sm">
+                                                <Link href={route('app.signatures.show', sig.id)}>
+                                                    View
+                                                </Link>
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 )}
-            </Card>
+            </TablePanel>
 
             {recentSigned.length > 0 && (
-                <Card className="overflow-hidden py-0">
-                    <div className="border-b px-6 py-4">
-                        <h2 className="text-sm font-semibold">Recently signed</h2>
-                    </div>
-                    <div className="divide-y">
-                        {recentSigned.map((sig) => (
-                            <div
-                                key={sig.id}
-                                className="flex items-center justify-between gap-4 px-6 py-3"
-                            >
-                                <div className="flex min-w-0 items-center gap-3">
-                                    <AvatarInitials name={sig.client_name} variant="success" />
-                                    <div className="min-w-0">
-                                        <p className="text-sm font-medium leading-tight">
-                                            {sig.client_name}
-                                        </p>
-                                        <p className="text-xs leading-tight text-muted-foreground">
-                                            {sig.term_name}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="hidden text-xs text-muted-foreground sm:block">
-                                    Signed by{' '}
-                                    <span className="text-foreground/70">{sig.signed_name}</span>
-                                </div>
-                                <div className="hidden text-xs text-muted-foreground/60 sm:block">
-                                    {relativeTime(sig.signed_at)}
-                                </div>
-                                <Button asChild variant="ghost" size="sm">
-                                    <Link href={route('app.signatures.show', sig.id)}>View</Link>
-                                </Button>
-                            </div>
-                        ))}
-                    </div>
-                </Card>
+                <TablePanel title="Recently signed">
+                    <Table>
+                        <TableBody>
+                            {recentSigned.map((sig) => (
+                                <TableRow key={sig.id}>
+                                    <TableCell>
+                                        <div className="flex min-w-0 items-center gap-3">
+                                            <AvatarInitials
+                                                name={sig.client_name}
+                                                variant="success"
+                                            />
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-medium leading-tight">
+                                                    {sig.client_name}
+                                                </p>
+                                                <p className="text-xs leading-tight text-muted-foreground">
+                                                    {sig.term_name}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="hidden text-xs text-muted-foreground sm:table-cell">
+                                        Signed by{' '}
+                                        <span className="text-foreground/70">
+                                            {sig.signed_name}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell className="hidden text-xs text-muted-foreground/60 sm:table-cell">
+                                        {relativeTime(sig.signed_at)}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button asChild variant="ghost" size="sm">
+                                            <Link href={route('app.signatures.show', sig.id)}>
+                                                View
+                                            </Link>
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TablePanel>
             )}
 
             {termCount === 0 && clientCount === 0 && (

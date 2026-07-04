@@ -2,8 +2,9 @@
 
 namespace App\Providers;
 
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Response;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -12,12 +13,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Paginator::useTailwind();
+        // Throttle magic-link requests per email+IP so the endpoint can't be used
+        // to spam someone's inbox (5 requests/minute).
+        RateLimiter::for('magic-link', function (Request $request) {
+            $key = mb_strtolower((string) $request->input('email')).'|'.$request->ip();
 
-        Response::macro('toast', function (string $message, string $type = 'success', array $events = []) {
-            $trigger = array_merge(['toast' => compact('message', 'type')], $events);
-
-            return response('')->withHeaders(['HX-Trigger' => json_encode($trigger)]);
+            return Limit::perMinute(5)->by($key);
         });
     }
 }

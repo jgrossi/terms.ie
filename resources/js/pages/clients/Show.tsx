@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/empty-state';
 import { StatusDot } from '@/components/status-dot';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { TablePanel } from '@/components/table-panel';
 import {
     Table,
     TableBody,
@@ -86,7 +86,7 @@ export default function Show({ client, signatures }: Props) {
                     }
                 />
             ) : (
-                <Card className="overflow-hidden py-0">
+                <TablePanel>
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -107,12 +107,29 @@ export default function Show({ client, signatures }: Props) {
                                         v{sig.version}
                                     </TableCell>
                                     <TableCell>
-                                        <StatusDot status={sig.status} />
+                                        <StatusDot
+                                            status={sig.is_expired ? 'expired' : sig.status}
+                                        />
                                     </TableCell>
                                     <TableCell className="text-muted-foreground">
                                         {relativeTime(sig.created_at)}
                                     </TableCell>
                                     <TableCell className="text-right">
+                                        {sig.is_expired && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() =>
+                                                    router.post(
+                                                        route('app.signatures.extend', sig.id),
+                                                        {},
+                                                        { preserveScroll: true },
+                                                    )
+                                                }
+                                            >
+                                                Extend
+                                            </Button>
+                                        )}
                                         <Button asChild variant="ghost" size="sm">
                                             <Link href={route('app.signatures.show', sig.id)}>
                                                 View
@@ -123,7 +140,7 @@ export default function Show({ client, signatures }: Props) {
                             ))}
                         </TableBody>
                     </Table>
-                </Card>
+                </TablePanel>
             )}
         </>
     );

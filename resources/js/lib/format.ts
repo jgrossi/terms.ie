@@ -31,7 +31,7 @@ export function formatDate(iso: string): string {
     });
 }
 
-/** "03 Jul 2026 at 14:32" */
+/** "03 Jul 2026 at 14:32" (local time) */
 export function formatDateTime(iso: string): string {
     const date = new Date(iso);
     const day = date.toLocaleDateString('en-GB', {
@@ -45,4 +45,22 @@ export function formatDateTime(iso: string): string {
         hour12: false,
     });
     return `${day} at ${time}`;
+}
+
+/** "03 Jul 2026 at 14:32 UTC" — timestamps are stored in UTC. */
+export function formatDateTimeUtc(iso: string): string {
+    const date = new Date(iso);
+    const day = date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        timeZone: 'UTC',
+    });
+    const time = date.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'UTC',
+    });
+    return `${day} at ${time} UTC`;
 }

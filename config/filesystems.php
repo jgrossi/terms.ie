@@ -16,6 +16,11 @@ return [
     'default' => env('FILESYSTEM_DISK', 'local'),
 
     /*
+    | Disk used for signed contract PDFs. Local in dev/tests; set to "r2" in prod.
+    */
+    'signature_disk' => env('SIGNATURE_DISK', 'local'),
+
+    /*
     |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
@@ -57,6 +62,19 @@ return [
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
+            'report' => false,
+        ],
+
+        // Cloudflare R2 (S3-compatible). Private bucket; files served via signed URLs.
+        'r2' => [
+            'driver' => 's3',
+            'key' => env('R2_ACCESS_KEY_ID'),
+            'secret' => env('R2_SECRET_ACCESS_KEY'),
+            'region' => 'auto',
+            'bucket' => env('R2_BUCKET'),
+            'endpoint' => env('R2_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+            'throw' => true,
             'report' => false,
         ],
 

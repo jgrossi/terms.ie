@@ -8,48 +8,32 @@ interface Props {
     caption?: string;
     icon: ReactNode;
     href?: string;
-    /** Inverted (near-black) surface — used to draw attention (e.g. pending). */
-    invert?: boolean;
+    /** Marks the card as needing attention with a small amber dot (e.g. pending work). */
+    attention?: boolean;
 }
 
-export function Stat({ label, value, caption, icon, href, invert = false }: Props) {
+export function Stat({ label, value, caption, icon, href, attention = false }: Props) {
     const className = cn(
-        'group block rounded-xl p-5 transition-colors',
-        invert
-            ? 'bg-foreground text-background shadow-sm'
-            : cn('border bg-card', href && 'hover:border-muted-foreground/30'),
+        'group block rounded-xl border bg-card p-4 transition-colors',
+        href && 'hover:border-muted-foreground/30',
     );
 
     const content = (
         <>
-            <div className="mb-4 flex items-center justify-between">
-                <p
-                    className={cn(
-                        'text-xs font-medium uppercase tracking-wide',
-                        invert ? 'text-background/50' : 'text-muted-foreground',
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        {label}
+                    </p>
+                    {attention && (
+                        <span className="size-1.5 rounded-full bg-warning" aria-hidden />
                     )}
-                >
-                    {label}
-                </p>
-                <div
-                    className={cn(
-                        'flex size-7 items-center justify-center rounded-lg',
-                        invert ? 'bg-background/10 text-background/70' : 'bg-muted text-muted-foreground',
-                    )}
-                >
-                    {icon}
                 </div>
+                <span className="text-muted-foreground/50">{icon}</span>
             </div>
-            <p className="text-3xl font-medium tabular-nums">{value}</p>
+            <p className="mt-3 text-2xl font-semibold tabular-nums">{value}</p>
             {caption && (
-                <p
-                    className={cn(
-                        'mt-1 text-xs',
-                        invert ? 'text-background/40' : 'text-muted-foreground/60',
-                    )}
-                >
-                    {caption}
-                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground/60">{caption}</p>
             )}
         </>
     );

@@ -77,6 +77,7 @@ export interface ClientSignatureRow {
     term_name: string;
     version: number;
     status: SignatureStatus;
+    is_expired: boolean;
     created_at: string;
 }
 
@@ -99,6 +100,8 @@ export interface SignatureDetail {
     status: SignatureStatus;
     is_pending: boolean;
     is_signed: boolean;
+    is_expired: boolean;
+    expires_at: string | null;
     client: { id: string; name: string; email: string };
     variables: Record<string, string>;
     body: string;
@@ -111,7 +114,9 @@ export interface SignatureDetail {
 export interface SignDocument {
     id: string;
     term_name: string;
+    client_name: string;
     is_signed: boolean;
+    is_expired: boolean;
     body: string;
     signed_name: string | null;
     signed_at: string | null;

@@ -1,4 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
+import { Download, Clock } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { route } from 'ziggy-js';
 import { ClientLayout } from '@/layouts/client-layout';
@@ -26,7 +27,7 @@ export default function Show({ signature }: { signature: SignDocument }) {
             <>
                 <Head title={signature.term_name} />
                 <Certificate
-                    className="mb-6"
+                    className="mb-4"
                     signature={{
                         id: signature.id,
                         signed_name: signature.signed_name,
@@ -35,12 +36,39 @@ export default function Show({ signature }: { signature: SignDocument }) {
                         content_hash: signature.content_hash,
                     }}
                 />
+                <div className="mb-6 flex justify-center">
+                    <Button asChild variant="outline">
+                        <a href={route('sign.pdf', signature.id)}>
+                            <Download className="size-4" /> Download PDF
+                        </a>
+                    </Button>
+                </div>
                 <DocumentSurface className="mb-6" body={signature.body} />
                 <p className="text-center text-xs text-muted-foreground/60">
                     {LEGAL}
                     <br />
                     Reference: <span className="font-mono">{signature.id}</span>
                 </p>
+            </>
+        );
+    }
+
+    if (signature.is_expired) {
+        return (
+            <>
+                <Head title={signature.term_name} />
+                <SectionCard className="text-center">
+                    <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                        <Clock className="size-6" />
+                    </div>
+                    <h1 className="mb-1.5 text-lg font-semibold">
+                        This signing link has expired
+                    </h1>
+                    <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+                        Please contact the sender to request a new link for “
+                        {signature.term_name}”.
+                    </p>
+                </SectionCard>
             </>
         );
     }
@@ -62,6 +90,13 @@ export default function Show({ signature }: { signature: SignDocument }) {
 
             <SectionCard>
                 <form onSubmit={submit}>
+                    <div className="mb-4 rounded-lg border bg-muted/40 px-4 py-3">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            Signing as
+                        </p>
+                        <p className="font-medium">{signature.client_name}</p>
+                    </div>
+
                     <div className="grid gap-2">
                         <Label htmlFor="signed_name">
                             Full name <span className="text-destructive">*</span>
@@ -70,9 +105,13 @@ export default function Show({ signature }: { signature: SignDocument }) {
                             id="signed_name"
                             value={form.data.signed_name}
                             onChange={(e) => form.setData('signed_name', e.target.value)}
-                            placeholder="Type your full name to sign"
+                            placeholder={signature.client_name}
                             aria-invalid={Boolean(form.errors.signed_name)}
+                            autoFocus
                         />
+                        <p className="text-xs text-muted-foreground">
+                            Type your name exactly as shown above to sign.
+                        </p>
                         {form.errors.signed_name && (
                             <p className="text-sm text-destructive">
                                 {form.errors.signed_name}

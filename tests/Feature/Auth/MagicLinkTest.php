@@ -1,13 +1,29 @@
 <?php
 
+use App\Mail\MagicLinkMail;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
-test('sending a magic link to a new email creates the user and redirects home', function () {
+test('sending a magic link to a new email creates the user and emails the link', function () {
+    Mail::fake();
+
     $this->post(route('magic-link.send'), ['email' => 'new@example.ie'])
         ->assertRedirect(route('home'));
 
     expect(User::where('email', 'new@example.ie')->exists())->toBeTrue();
+    Mail::assertSent(MagicLinkMail::class);
+});
+
+test('magic link requests are rate limited per email', function () {
+    Mail::fake();
+
+    foreach (range(1, 5) as $i) {
+        $this->post(route('magic-link.send'), ['email' => 'spam@example.ie']);
+    }
+
+    $this->post(route('magic-link.send'), ['email' => 'spam@example.ie'])
+        ->assertStatus(429);
 });
 
 test('sending a magic link to an existing email does not duplicate the user', function () {

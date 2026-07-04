@@ -25,7 +25,7 @@ export default function Edit({ term, reserved }: Props) {
                 ]}
             />
 
-            <div className="max-w-2xl">
+            <div className="max-w-4xl">
                 <p className="mb-5 rounded-xl bg-muted px-4 py-3 text-sm text-muted-foreground">
                     Changing the body creates a new version. Existing client terms stay on
                     their current version.

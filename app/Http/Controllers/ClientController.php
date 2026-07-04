@@ -59,6 +59,7 @@ class ClientController extends Controller
                 'term_name'  => $sig->termVersion->term->name,
                 'version'    => $sig->termVersion->version,
                 'status'     => $sig->status->value,
+                'is_expired' => $sig->isExpired(),
                 'created_at' => $sig->created_at->toIso8601String(),
             ]),
         ]);

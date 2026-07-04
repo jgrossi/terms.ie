@@ -70,12 +70,12 @@ export function TermForm({ term, reserved }: Props) {
                 </Label>
                 <Textarea
                     id="body"
-                    rows={16}
+                    rows={28}
                     value={form.data.body}
                     onChange={(e) => form.setData('body', e.target.value)}
                     placeholder={BODY_PLACEHOLDER}
                     aria-invalid={Boolean(form.errors.body)}
-                    className={cn('font-mono text-sm leading-relaxed')}
+                    className={cn('min-h-[28rem] resize-y font-mono text-sm leading-relaxed')}
                 />
                 {form.errors.body && (
                     <p className="text-sm text-destructive">{form.errors.body}</p>

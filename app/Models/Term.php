@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\HasPrefixedUlid;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,9 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Term extends Model
 {
-    use HasFactory, HasPrefixedUlid;
+    use HasFactory, HasUuids;
 
-    protected static function ulidPrefix(): string { return 'trm_'; }
     protected $guarded = [];
 
     const RESERVED = ['CLIENT_NAME', 'CLIENT_EMAIL'];

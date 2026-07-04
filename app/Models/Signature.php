@@ -3,24 +3,27 @@
 namespace App\Models;
 
 use App\Enums\SignatureStatus;
-use App\Models\Concerns\HasPrefixedUlid;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Signature extends Model
 {
-    use HasFactory, HasPrefixedUlid;
+    use HasFactory, HasUuids;
 
-    protected static function ulidPrefix(): string { return 'sig_'; }
     protected $guarded = [];
+
+    /** Pending signing links are valid for this many days after assignment. */
+    const EXPIRY_DAYS = 7;
 
     protected function casts(): array
     {
         return [
-            'status'    => SignatureStatus::class,
-            'variables' => 'array',
-            'signed_at' => 'datetime',
+            'status'     => SignatureStatus::class,
+            'variables'  => 'array',
+            'expires_at' => 'datetime',
+            'signed_at'  => 'datetime',
         ];
     }
 
@@ -28,12 +31,18 @@ class Signature extends Model
     {
         static::creating(function (Signature $signature) {
             $signature->status ??= SignatureStatus::Pending;
+            $signature->expires_at ??= now()->addDays(self::EXPIRY_DAYS);
         });
     }
 
     public function isPending(): bool
     {
         return $this->status === SignatureStatus::Pending;
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->isPending() && $this->expires_at?->isPast();
     }
 
     public function isSigned(): bool

@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('clients', function (Blueprint $table) {
-            $table->string('id', 30)->primary();
-            $table->string('user_id', 30)->index();
+            $table->uuid('id')->primary();
+            $table->uuid('user_id')->index();
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->string('name');
             $table->string('email');

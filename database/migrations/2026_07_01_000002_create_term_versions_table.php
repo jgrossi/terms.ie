@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('term_versions', function (Blueprint $table) {
-            $table->string('id', 30)->primary();
-            $table->string('term_id', 30)->index();
+            $table->uuid('id')->primary();
+            $table->uuid('term_id')->index();
             $table->foreign('term_id')->references('id')->on('terms')->cascadeOnDelete();
             $table->unsignedInteger('version')->default(1);
             $table->longText('body');

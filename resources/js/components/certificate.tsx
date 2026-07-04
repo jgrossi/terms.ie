@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { formatDateTime } from '@/lib/format';
+import { formatDateTimeUtc } from '@/lib/format';
 
 export interface CertificateData {
     id: string;
@@ -19,23 +19,31 @@ export function Certificate({
 }) {
     return (
         <div className={cn('overflow-hidden rounded-xl border bg-card shadow-sm', className)}>
-            <div className="flex items-center gap-3 bg-foreground px-6 py-4 text-background">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-background/10">
+            <div className="flex items-center gap-3 border-b bg-success/5 px-6 py-4">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-success/10 text-success">
                     <Check className="size-5" />
                 </div>
                 <div className="min-w-0">
-                    <p className="text-[11px] font-medium uppercase tracking-widest text-background/50">
+                    <p className="text-[11px] font-medium uppercase tracking-widest text-success">
                         Signed &amp; verified
                     </p>
-                    <p className="truncate text-lg font-semibold leading-tight">
+                    <p className="truncate text-lg font-semibold leading-tight text-foreground">
                         {signature.signed_name}
                     </p>
                 </div>
             </div>
+            <div className="border-b px-6 py-5">
+                <p className="mb-1 text-[11px] uppercase tracking-widest text-muted-foreground">
+                    Signature
+                </p>
+                <p className="font-signature text-4xl leading-none text-foreground">
+                    {signature.signed_name}
+                </p>
+            </div>
             <dl className="divide-y text-sm">
                 <div className="flex justify-between gap-4 px-6 py-3">
                     <dt className="text-muted-foreground">Date signed</dt>
-                    <dd>{formatDateTime(signature.signed_at)}</dd>
+                    <dd>{formatDateTimeUtc(signature.signed_at)}</dd>
                 </div>
                 <div className="flex justify-between gap-4 px-6 py-3">
                     <dt className="text-muted-foreground">IP address</dt>

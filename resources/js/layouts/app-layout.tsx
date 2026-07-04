@@ -36,7 +36,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
     useFlashToast();
 
     return (
-        <div className="min-h-screen bg-muted/30">
+        <div className="flex min-h-screen flex-col bg-muted/30">
             <nav className="border-b bg-background">
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
                     <Link
@@ -74,7 +74,20 @@ export function AppLayout({ children }: { children: ReactNode }) {
                 </div>
             </nav>
 
-            <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+            <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">{children}</main>
+
+            <footer className="border-t bg-background">
+                <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-5 text-sm text-muted-foreground sm:flex-row">
+                    <p>
+                        <span className="font-semibold text-foreground">
+                            terms<span className="text-primary">.ie</span>
+                        </span>
+                        <span className="mx-2 text-muted-foreground/40">·</span>
+                        &copy; {new Date().getFullYear()}
+                    </p>
+                    <p>Made in Ireland 🇮🇪</p>
+                </div>
+            </footer>
         </div>
     );
 }

@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/page-header';
 import { EmptyState } from '@/components/empty-state';
 import { VariableChip } from '@/components/variable-chip';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { TablePanel } from '@/components/table-panel';
 import {
     Table,
     TableBody,
@@ -47,7 +47,7 @@ export default function Index({ terms }: { terms: TermListItem[] }) {
                     }
                 />
             ) : (
-                <Card className="overflow-hidden py-0">
+                <TablePanel>
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -97,7 +97,7 @@ export default function Index({ terms }: { terms: TermListItem[] }) {
                             ))}
                         </TableBody>
                     </Table>
-                </Card>
+                </TablePanel>
             )}
         </>
     );

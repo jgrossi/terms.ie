@@ -9,6 +9,7 @@ import {
     ShieldCheck,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { route } from 'ziggy-js';
 import { LandingLayout } from '@/layouts/landing-layout';
 import { MagicLinkForm } from '@/components/magic-link-form';
 
@@ -393,17 +394,20 @@ export default function Home() {
                         <p className="text-sm text-background/40">Made in Ireland 🇮🇪</p>
                     </div>
                     <nav className="flex flex-wrap gap-x-6 gap-y-2">
-                        {['Pricing', 'Blog', 'Privacy Policy', 'Terms of Service', 'Contact'].map(
-                            (label) => (
-                                <a
-                                    key={label}
-                                    href="#"
-                                    className="text-sm text-background/50 transition-colors hover:text-background"
-                                >
-                                    {label}
-                                </a>
-                            ),
-                        )}
+                        {[
+                            { label: 'Pricing', href: '#pricing' },
+                            { label: 'Privacy Policy', href: route('legal.privacy') },
+                            { label: 'Terms of Service', href: route('legal.terms') },
+                            { label: 'Contact', href: 'mailto:hello@terms.ie' },
+                        ].map(({ label, href }) => (
+                            <a
+                                key={label}
+                                href={href}
+                                className="text-sm text-background/50 transition-colors hover:text-background"
+                            >
+                                {label}
+                            </a>
+                        ))}
                     </nav>
                 </div>
             </footer>
