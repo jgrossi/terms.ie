@@ -28,6 +28,10 @@ test('dashboard shows the user\'s counts and pending signatures', function () {
             ->where('pendingCount', 1)
             ->where('signedCount', 0)
             ->has('pendingSignatures', 1)
+            ->has('recentClients', 1)
+            ->where('recentClients.0.id', $client->id)
+            ->where('recentClients.0.name', $client->name)
+            ->where('recentClients.0.email', $client->email)
         );
 });
 
@@ -42,5 +46,6 @@ test('dashboard does not count another user\'s data', function () {
         ->assertInertia(fn (Assert $page) => $page
             ->where('termCount', 0)
             ->where('clientCount', 0)
+            ->has('recentClients', 0)
         );
 });

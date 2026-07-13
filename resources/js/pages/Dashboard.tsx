@@ -4,6 +4,7 @@ import {
     Clock,
     FileText,
     Plus,
+    UserPlus,
     Users,
 } from 'lucide-react';
 import { route } from 'ziggy-js';
@@ -26,6 +27,7 @@ import {
 import { relativeTime } from '@/lib/format';
 import { usePage } from '@inertiajs/react';
 import type {
+    ClientListItem,
     PendingSignature,
     SharedProps,
     SignedSignature,
@@ -38,6 +40,7 @@ interface Props {
     signedCount: number;
     pendingSignatures: PendingSignature[];
     recentSigned: SignedSignature[];
+    recentClients: ClientListItem[];
 }
 
 export default function Dashboard({
@@ -47,6 +50,7 @@ export default function Dashboard({
     signedCount,
     pendingSignatures,
     recentSigned,
+    recentClients,
 }: Props) {
     const { auth } = usePage<SharedProps>().props;
 
@@ -58,11 +62,18 @@ export default function Dashboard({
                 title="Overview"
                 subtitle={auth.user?.email}
                 actions={
-                    <Button asChild size="sm">
-                        <Link href={route('app.terms.create')}>
-                            <Plus className="size-3.5" /> New term
-                        </Link>
-                    </Button>
+                    <>
+                        <Button asChild size="sm">
+                            <Link href={route('app.terms.create')}>
+                                <Plus className="size-3.5" /> New term
+                            </Link>
+                        </Button>
+                        <Button asChild variant="outline" size="sm">
+                            <Link href={route('app.clients.create')}>
+                                <UserPlus className="size-3.5" /> New client
+                            </Link>
+                        </Button>
+                    </>
                 }
             />
 
@@ -158,6 +169,51 @@ export default function Dashboard({
                     </Table>
                 )}
             </TablePanel>
+            {recentClients.length > 0 && (
+                <TablePanel
+                    className="mb-6"
+                    title="Recent clients"
+                    action={
+                        <Button asChild variant="ghost" size="sm">
+                            <Link href={route('app.clients.index')}>
+                                View all
+                            </Link>
+                        </Button>
+                    }
+                >
+                    <Table>
+                        <TableBody>
+                            {recentClients.map((client) => (
+                                <TableRow key={client.id}>
+                                    <TableCell>
+                                        <div className="flex min-w-0 items-center gap-3">
+                                            <AvatarInitials name={client.name} />
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-medium leading-tight">
+                                                    {client.name}
+                                                </p>
+                                                <p className="truncate text-xs leading-tight text-muted-foreground">
+                                                    {client.email}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="hidden text-xs text-muted-foreground/60 sm:table-cell">
+                                        Added {relativeTime(client.created_at)}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button asChild variant="ghost" size="sm">
+                                            <Link href={route('app.signatures.create-for-client', client.id)}>
+                                                <Plus className="size-3.5" /> New signature
+                                            </Link>
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TablePanel>
+            )}
 
             {recentSigned.length > 0 && (
                 <TablePanel title="Recently signed">

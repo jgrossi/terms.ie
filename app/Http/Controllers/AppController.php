@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\SignatureStatus;
+use App\Models\Client;
 use App\Models\Signature;
 use Inertia\Inertia;
 
@@ -44,6 +45,16 @@ class AppController extends Controller
                     'term_name'   => $sig->termVersion->term->name,
                     'signed_name' => $sig->signed_name,
                     'signed_at'   => $sig->signed_at->toIso8601String(),
+                ]),
+            'recentClients' => $user->clients()
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->map(fn (Client $client) => [
+                    'id'         => $client->id,
+                    'name'       => $client->name,
+                    'email'      => $client->email,
+                    'created_at' => $client->created_at->toIso8601String(),
                 ]),
         ]);
     }
