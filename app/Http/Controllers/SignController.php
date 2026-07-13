@@ -63,7 +63,7 @@ class SignController extends Controller
             'content_hash' => $signature->fingerprint($clientName, $signedAt),
         ]);
 
-        $signature->update(['pdf_path' => $this->generatePdf($signature)]);
+        $this->generatePdf($signature);
 
         // Email the client a copy of the signed PDF for their records.
         Mail::to($signature->client->email)->queue(new SignedDocumentMail($signature));
@@ -78,7 +78,7 @@ class SignController extends Controller
         $disk = Storage::disk(config('filesystems.signature_disk'));
 
         if (! $signature->pdf_path || ! $disk->exists($signature->pdf_path)) {
-            $signature->update(['pdf_path' => $this->generatePdf($signature)]);
+            $this->generatePdf($signature);
         }
 
         $filename = 'terms-'.$signature->id.'.pdf';
@@ -97,7 +97,7 @@ class SignController extends Controller
 
     /**
      * Render the signed document to a PDF, store it on the signature disk,
-     * and return the relative path.
+     * store the SHA-256 of its bytes (used by /verify), and return the path.
      */
     private function generatePdf(Signature $signature): string
     {
@@ -113,8 +113,16 @@ class SignController extends Controller
             'contentHash' => $signature->content_hash,
         ]);
 
+        $bytes = $pdf->output();
         $path = "signatures/{$signature->id}.pdf";
-        Storage::disk(config('filesystems.signature_disk'))->put($path, $pdf->output());
+
+        Storage::disk(config('filesystems.signature_disk'))->put($path, $bytes);
+
+        // The hash of the actual delivered bytes — what verification matches on.
+        $signature->update([
+            'pdf_path' => $path,
+            'pdf_hash' => hash('sha256', $bytes),
+        ]);
 
         return $path;
     }

@@ -1,5 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
-import { Download, Clock } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { Download, Clock, ShieldCheck } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { route } from 'ziggy-js';
 import { ClientLayout } from '@/layouts/client-layout';
@@ -36,11 +36,16 @@ export default function Show({ signature }: { signature: SignDocument }) {
                         content_hash: signature.content_hash,
                     }}
                 />
-                <div className="mb-6 flex justify-center">
+                <div className="mb-6 flex flex-wrap justify-center gap-3">
                     <Button asChild variant="outline">
                         <a href={route('sign.pdf', signature.id)}>
                             <Download className="size-4" /> Download PDF
                         </a>
+                    </Button>
+                    <Button asChild variant="outline">
+                        <Link href={route('verify.show', signature.id)}>
+                            <ShieldCheck className="size-4" /> Verify document
+                        </Link>
                     </Button>
                 </div>
                 <DocumentSurface className="mb-6" body={signature.body} />

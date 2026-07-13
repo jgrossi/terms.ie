@@ -123,3 +123,26 @@ export interface SignDocument {
     signed_ip: string | null;
     content_hash: string | null;
 }
+
+export interface VerifiedResult {
+    status: 'verified';
+    term_name: string;
+    client_name: string;
+    id: string;
+    signed_name: string;
+    signed_at: string | null;
+    signed_ip: string | null;
+    pdf_hash: string | null;
+}
+
+export interface FailedResult {
+    status: 'failed';
+}
+
+export type VerificationResult = VerifiedResult | FailedResult;
+
+export interface VerifyPage {
+    reference: string;
+    termName: string;
+    verification: VerificationResult | null;
+}

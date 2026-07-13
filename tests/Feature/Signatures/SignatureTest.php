@@ -216,6 +216,8 @@ test('client can sign a document, a pdf is generated, and the client is emailed'
     expect($sig->signed_name)->toBe('Jane Smith'); // canonical name stored
     expect($sig->content_hash)->not->toBeNull();
     expect($sig->pdf_path)->not->toBeNull();
+    expect($sig->pdf_hash)->not->toBeNull();
+    expect($sig->pdf_hash)->toMatch('/^[0-9a-f]{64}$/');
     Storage::disk('local')->assertExists($sig->pdf_path);
     Mail::assertQueued(SignedDocumentMail::class);
 });

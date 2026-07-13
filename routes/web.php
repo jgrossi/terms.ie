@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\MagicLinkController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\SignatureController;
 use App\Http\Controllers\SignController;
+use App\Http\Controllers\VerifyController;
 use App\Http\Controllers\TermController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -22,6 +23,8 @@ Route::post('/logout', [MagicLinkController::class, 'logout'])->name('logout');
 Route::get('/sign/{signature}', [SignController::class, 'show'])->name('sign.show');
 Route::post('/sign/{signature}', [SignController::class, 'sign'])->name('sign.sign');
 Route::get('/sign/{signature}/pdf', [SignController::class, 'pdf'])->name('sign.pdf');
+Route::get('/verify/{signature}', [VerifyController::class, 'show'])->name('verify.show');
+Route::post('/verify/{signature}', [VerifyController::class, 'verify'])->name('verify.verify');
 
 Route::prefix('app')->name('app.')->middleware('auth')->scopeBindings()->group(function () {
     Route::get('/', AppController::class)->name('dashboard');
